@@ -11,6 +11,8 @@ This dedicated repository houses the official sovereign product catalog, specifi
 
 ---
 
+> 💰 **Commercial Valuation & Licensing:** For pricing tiers, institutional licensing schedules, and intellectual property asset valuations across all five products, see [**PRICING.md**](./PRICING.md).
+
 > 🔍 **Verification & Digest Guide:** For full instructions on reproducing SHA-256 verification checks across Linux, macOS, and Windows, automated batch validation via [`checksums.sha256`](./checksums.sha256), and in-depth technical interpretation of each package digest and triage status, see [**VERIFICATION.md**](./VERIFICATION.md).
 
 ## Catalog Index
