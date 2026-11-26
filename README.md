@@ -9,6 +9,8 @@ This dedicated repository houses the official sovereign product catalog, specifi
 
 ---
 
+> 🔍 **Verification & Digest Guide:** For full instructions on reproducing SHA-256 verification checks across Linux, macOS, and Windows, automated batch validation via [`checksums.sha256`](./checksums.sha256), and in-depth technical interpretation of each package digest and triage status, see [**VERIFICATION.md**](./VERIFICATION.md).
+
 ## Catalog Index
 
 | ID | Asset Title | Primary Category | Verified SHA-256 Digest | Triage Status |
@@ -174,3 +176,20 @@ Industrial IoT safety controller and cryptographically signed telemetry system b
 
 ### Deployment Targets
 - Municipal water utilities, agricultural irrigation systems, industrial extraction wells, and remote off-grid pump infrastructure.
+
+---
+
+## Cryptographic Verification Quickstart
+
+To verify all catalog assets against their official SHA-256 digests in batch:
+
+```bash
+# Clone or download repository manifests
+git clone https://github.com/a95674127-beep/mack-sovereign-catalog.git
+cd mack-sovereign-catalog
+
+# Run automated batch verification against distribution packages in current directory
+sha256sum -c checksums.sha256
+```
+
+For complete platform-specific commands (macOS, Windows PowerShell, Python) and architectural breakdown of what each digest anchors, refer to [**VERIFICATION.md**](./VERIFICATION.md).
