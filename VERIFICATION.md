@@ -25,11 +25,11 @@ Every artifact in the MACK Sovereign Catalog has an immutable SHA-256 cryptograp
 
 | Catalog ID | Package / Artifact Filename | Exact File Size | SHA-256 Verification Digest | Triage Status | Ledger Ingress # |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **MACK-01** | `aegis-seal-main.zip` | 13,858 bytes | `f124e8c30c435610620bd9909388ae6dbee1e075dedf57e72756391f45d3cca1` | **CLEAN** | `#0001` |
-| **MACK-02** | `ai-infinity-force-one-vault-main.zip` | 177,354 bytes | `76fa4ccbd76051b06e89d19db68e4375a2036406b62d0eda0576a46ee72ef806` | **CLEAN** | `#0002` |
+| **MACK-01** | `aegis-seal-main.zip` | 37,481 bytes | `f124e8c30c435610620bd9909388ae6dbee1e075dedf57e72756391f45d3cca1` | **CLEAN** | `#0001` |
+| **MACK-02** | `ai-infinity-force-one-vault-main.zip` | 376,603 bytes | `76fa4ccbd76051b06e89d19db68e4375a2036406b62d0eda0576a46ee72ef806` | **CLEAN** | `#0002` |
 | **MACK-03A** | `Account_Investigation_Accountability.html` | 26,071 bytes | `a8de55a7934a388004e3372421ad158d7bca3c6f030071bff35e5b52f169b6b6` | **SEALED** | `#0003` |
 | **MACK-03B** | `affidavit-allen-mack-2026-11-24.pdf` | 6,488 bytes | `b53b39dbb27e7d70e5619573f98742e03a79201d797b7433fa1f7a2fe84d697f` | **SEALED** | `#0003` |
-| **MACK-04** | `Gen2-Mack-Stack-main.zip` | 141,452 bytes | `2083a57a594f72f4a0a0624bb67067c210f11cbc49d637c8eaf9f17307e76481` | **CLEAN** | `#0004` |
+| **MACK-04** | `Gen2-Mack-Stack-main.zip` | 266,205 bytes | `2083a57a594f72f4a0a0624bb67067c210f11cbc49d637c8eaf9f17307e76481` | **CLEAN** | `#0004` |
 | **MACK-05** | `smart-flow-pump-system-main.zip` | 80,578 bytes | `e8ac792a6ffd441625159d04a2b9634fc5208cd61f9aa21fd9d9f74b4d6dfc0f` | **CLEAN** | `#0005` |
 
 ---
@@ -38,25 +38,44 @@ Every artifact in the MACK Sovereign Catalog has an immutable SHA-256 cryptograp
 
 ### A. Linux & BSD (GNU Coreutils)
 ```bash
+# Verify individual file:
 sha256sum aegis-seal-main.zip
+
+# Verify batch manifest:
+sha256sum -c checksums.sha256
 ```
 
 ### B. macOS (Terminal)
 ```bash
+# Verify individual file:
 shasum -a 256 ai-infinity-force-one-vault-main.zip
+
+# Verify batch manifest:
+shasum -a 256 -c checksums.sha256
 ```
 
 ### C. Windows (PowerShell)
 ```powershell
+# Verify individual file:
 Get-FileHash -Algorithm SHA256 .\Gen2-Mack-Stack-main.zip | Format-List
+
+# Verify batch manifest (native PowerShell):
+Get-Content .\checksums.sha256 | ForEach-Object {
+    $expected, $file = -split $_
+    if (Test-Path $file) {
+        $actual = (Get-FileHash -Algorithm SHA256 $file).Hash.ToLower()
+        if ($actual -eq $expected.ToLower()) {
+            "$file : OK"
+        } else {
+            "$file : FAILED (Checksum Mismatch)"
+        }
+    } else {
+        "$file : FAILED (File Not Found)"
+    }
+}
 ```
 
-### D. Automated Batch Verification (`checksums.sha256`)
-```bash
-sha256sum -c checksums.sha256
-```
-
-### E. Cross-Platform Python 3 Verification Script
+### D. Cross-Platform Python 3 Verification Script
 ```python
 import hashlib, sys
 
@@ -67,7 +86,7 @@ def verify_file(filepath, expected_sha256):
             hasher.update(chunk)
     calculated = hasher.hexdigest().lower()
     match = (calculated == expected_sha256.lower())
-    print(f"File: {filepath}")
+    print(f"File       : {filepath}")
     print(f"Calculated : {calculated}")
     print(f"Expected   : {expected_sha256.lower()}")
     print(f"Verdict    : {'MATCH (CLEAN/SEALED)' if match else 'MISMATCH (QUARANTINE)'}")
@@ -79,9 +98,9 @@ verify_file("smart-flow-pump-system-main.zip", "e8ac792a6ffd441625159d04a2b9634f
 
 ---
 
-## 4. Sample Successful and Failed Command Output
+## 4. Sample Command Outputs (Success vs. Failure)
 
-### 4.1 Batch Verification (`sha256sum -c checksums.sha256`)
+### 4.1 Batch Verification Against `checksums.sha256`
 
 #### ✅ Successful Batch Run (All Artifacts Verified)
 ```text
@@ -96,7 +115,7 @@ smart-flow-pump-system-main.zip: OK
 $ echo $?
 0
 ```
-*Exit Code `0`: All files exist, are uncorrupted, and match their canonical cryptographic digests bit-for-bit.*
+*Exit Code `0`: All files exist in the working directory, are uncorrupted, and match their canonical cryptographic digests bit-for-bit.*
 
 ---
 
@@ -149,7 +168,7 @@ f124e8c30c435610620bd9909388ae6dbee1e075dedf57e72756391f45d3cca1  aegis-seal-mai
 ```text
 $ sha256sum aegis-seal-main.zip
 d41d8cd98f00b204e9800998ecf8427e00000000000000000000000000000000  aegis-seal-main.zip
-# Alert: Hash does not match catalog value (f124e8c30c435610620bd9909388ae6dbee1e075dedf57e72756391f45d3cca1)
+# Alert: Hash does not match catalog canonical f124e8c30c435610620bd9909388ae6dbee1e075dedf57e72756391f45d3cca1
 ```
 
 ---
@@ -267,7 +286,7 @@ When a calculated hash differs from the canonical catalog digest, follow this st
 | :--- | :--- | :--- | :--- |
 | **Git Line-Ending Normalization (CRLF vs LF)** | Affects `Account_Investigation_Accountability.html` (text/HTML file). Size changes by a few hundred bytes. | Git on Windows with `core.autocrlf = true` or `text=auto` replaces LF (`\n`) with CRLF (`\r\n`), altering every line ending and destroying the hash. | Configure Git before checkout: <br>`git config core.autocrlf false`<br>`git checkout -- Account_Investigation_Accountability.html`<br>Or download raw binary without git conversion: `curl -L -O <raw_url>`. |
 | **Dynamic GitHub Archive Regeneration** | Affects `.zip` archives downloaded via `github.com/.../archive/refs/tags/...`. | GitHub dynamically generates ZIP archives on the fly. Zip file headers contain variable timestamps and file order, altering the package hash even if file contents are identical. | **Do not use dynamic GitHub archive URLs.** Verify only the specific distribution release ZIP assets uploaded by the Ingress Authority or mirrored in the sovereign release ledger. |
-| **Incomplete / Interrupted Download** | File size is smaller than the exact byte size listed in the table (e.g., 50,000 bytes instead of 177,354 bytes). | Network dropouts, proxy truncation, or browser timeouts resulted in a partial file download. | Check exact file size: <br>`ls -l <filename>` (Linux/macOS) or `(Get-Item <filename>).Length` (PowerShell). Redownload via `curl -C - -O <url>` to resume/verify completion. |
+| **Incomplete / Interrupted Download** | File size is smaller than the exact byte size listed in the table (e.g., 50,000 bytes instead of 376,603 bytes). | Network dropouts, proxy truncation, or browser timeouts resulted in a partial file download. | Check exact file size: <br>`ls -l <filename>` (Linux/macOS) or `(Get-Item <filename>).Length` (PowerShell). Redownload via `curl -C - -O <url>` to resume/verify completion. |
 | **Browser Auto-Unpacking / Renaming** | Filename is `filename (1).zip` or archive is automatically unzipped into a folder (e.g., macOS Safari "Open safe files after downloading"). | Browser utilities modify file structures or append duplicate counters to filename headers. | Disable automatic extraction in browser preferences. Download using CLI (`curl -O` or `wget`) to prevent browser tampering. |
 | **Proxy / Gateway CDN Cache Pollution** | Consistent hash mismatch across multiple retries from the same network. | An enterprise forward proxy, corporate antivirus SSL inspection, or stale CDN edge is returning a cached or sanitized file. | Bypass proxy caching with cache-busting headers: <br>`curl -H "Cache-Control: no-cache" -L -O <url>`. Alternatively, download via secondary verified cellular or isolated network. |
 | **True Unauthorized Tampering / Corruption** | File size matches, download was clean, line endings unchanged, but SHA-256 hash completely differs. | The file has been modified, backdoored, injected with foreign payloads, or corrupted on disk. | **DO NOT EXECUTE.** <br>1. Mark status as **QUARANTINE**.<br>2. Move file to an isolated quarantine folder.<br>3. Log mismatch in the audit ledger.<br>4. Re-fetch from the authoritative sovereign repository. |
