@@ -1,0 +1,62 @@
+name: Package Checksum Verification & Doc Consistency
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify-packages:
+    name: Verify Package Checksums (sha256sum)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify checksums.sha256 manifest
+        run: |
+          echo "=== 1. Batch verification of all distribution packages against checksums.sha256 ==="
+          sha256sum --strict -c checksums.sha256
+          echo "All packages matched bit-for-bit with canonical SHA-256 digests."
+
+      - name: Verify fail-closed behavior on corrupted payload
+        run: |
+          echo "=== 2. Testing fail-closed gate on simulated corruption ==="
+          cp aegis-seal-main.zip aegis-seal-main.zip.bak
+          echo "CORRUPTED_PAYLOAD_BYTE" >> aegis-seal-main.zip
+          if sha256sum --strict -c checksums.sha256 > /dev/null 2>&1; then
+            echo "FATAL: sha256sum unexpectedly passed corrupted package! Verification gate failed."
+            exit 1
+          else
+            echo "Verified: sha256sum correctly detected corruption and failed closed (exit code 1)."
+          fi
+          mv aegis-seal-main.zip.bak aegis-seal-main.zip
+
+      - name: Run Python verification utility
+        run: |
+          echo "=== 3. Testing Python verification script ==="
+          python3 scripts/verify.py
+
+  verify-docs-consistency:
+    name: Check VERIFICATION.md Consistency
+    runs-on: ubuntu-latest
+    needs: verify-packages
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Run lightweight verification & doc test
+        run: |
+          echo "=== Running test_verification_doc.py against VERIFICATION.md ==="
+          python3 tests/test_verification_doc.py .

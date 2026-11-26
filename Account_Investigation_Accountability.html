@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light dark" />
+<link rel="icon" href="data:," />
+<title>Account Investigation &amp; Accountability</title>
+<style>
+  :root{
+    --bg:#eceeef; --surface:#ffffff; --surface2:#f2f3f4; --ink:#17202e; --muted:#5a6577; --line:#d3d8de;
+    --navy:#1d3557; --navy-ink:#ffffff; --brass:#8a6d1b; --brass-bg:#fbf3d9; --flag:#9b2226; --flag-bg:#fdecec;
+    --ok:#1f5c3a; --ok-bg:#e6f2ea; --shadow:0 1px 3px rgba(20,30,50,.08), 0 8px 24px rgba(20,30,50,.06);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0d1218; --surface:#161e29; --surface2:#1b2533; --ink:#e9edf2; --muted:#9aa7b8; --line:#2b3747;
+      --navy:#243d63; --navy-ink:#eef2f7; --brass:#d9b45a; --brass-bg:#2b2513; --flag:#f08a8a; --flag-bg:#331a1a;
+      --ok:#8fd0a8; --ok-bg:#16281d; --shadow:0 1px 3px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
+    }
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto} }
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.6;font-size:16px}
+  h1,h2,h3{font-family:Georgia,"Times New Roman",serif;line-height:1.2;margin:0}
+  a{color:var(--navy)} @media (prefers-color-scheme: dark){ a{color:#9fc0ee} }
+  button{min-height:44px}
+  .wrap{max-width:920px;margin:0 auto;padding:0 16px 56px}
+
+  /* Masthead — hearing record style */
+  .masthead{background:var(--navy);color:var(--navy-ink);margin:0 -16px;padding:28px 20px 24px;border-bottom:4px solid var(--brass)}
+  .masthead .docket{font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.85;margin:0 0 10px}
+  .masthead h1{font-size:clamp(28px,6vw,44px);font-weight:700;max-width:16ch}
+  .masthead .sub{margin:14px 0 0;font-size:17px;line-height:1.55;max-width:62ch;opacity:.96}
+  .masthead .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  .masthead .meta span{border:1px solid rgba(255,255,255,.45);border-radius:999px;padding:6px 12px;font-size:13px}
+
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);padding:22px 20px;margin-top:20px}
+  .card h2{font-size:24px;margin-bottom:6px}
+  .card h3{font-size:19px;margin:22px 0 6px}
+  .card h3:first-of-type{margin-top:14px}
+  .lede{font-size:17px}
+  .muted{color:var(--muted)}
+  .small{font-size:13.5px}
+  p{margin:10px 0}
+  ul,ol{margin:10px 0;padding-left:22px}
+  li{margin:7px 0}
+
+  .callout{border-left:4px solid var(--brass);background:var(--brass-bg);padding:14px 16px;border-radius:0 8px 8px 0;margin:16px 0}
+  .callout p{margin:4px 0}
+  .flagbox{border:1px solid var(--flag);background:var(--flag-bg);border-radius:8px;padding:16px;margin:16px 0}
+  .flagbox h3{margin-top:0;color:var(--flag)}
+  .okbox{border:1px solid var(--ok);background:var(--ok-bg);border-radius:8px;padding:14px 16px;margin:14px 0}
+  .okbox p{margin:4px 0}
+
+  .scope{display:grid;grid-template-columns:1fr;gap:14px;margin-top:14px}
+  @media(min-width:680px){ .scope{grid-template-columns:1fr 1fr} }
+  .scope article{border:1px solid var(--line);border-radius:8px;padding:18px;background:var(--surface2)}
+  .scope h3{margin:0 0 4px;font-size:20px}
+  .scope .tag{display:inline-block;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--brass);font-weight:700;margin-bottom:6px}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:14px;word-break:break-all}
+
+  /* Timeline */
+  .timeline{list-style:none;padding:0;margin:14px 0 0}
+  .timeline li{position:relative;padding:0 0 18px 26px;border-left:2px solid var(--line);margin:0 0 0 6px}
+  .timeline li:last-child{padding-bottom:2px}
+  .timeline li::before{content:"";position:absolute;left:-7px;top:6px;width:12px;height:12px;border-radius:50%;background:var(--surface);border:3px solid var(--navy)}
+  .timeline li.alert::before{border-color:var(--flag)}
+  .timeline .date{font-weight:700;font-size:14px;letter-spacing:.02em}
+  .timeline p{margin:4px 0}
+
+  /* Checklist as styled list (not interactive checkboxes) */
+  .checklist{list-style:none;padding:0;margin:10px 0}
+  .checklist li{display:flex;gap:12px;align-items:flex-start;padding:11px 12px;border:1px solid var(--line);border-radius:8px;margin:8px 0;background:var(--surface)}
+  .checklist .box{flex:0 0 auto;width:20px;height:20px;margin-top:2px;border:2px solid var(--navy);border-radius:4px;position:relative}
+  .checklist li.done .box{background:var(--navy)}
+  .checklist li.done .box::after{content:"";position:absolute;left:5px;top:1px;width:5px;height:10px;border:solid #fff;border-width:0 2.5px 2.5px 0;transform:rotate(42deg)}
+  .checklist .st{margin-left:auto;flex:0 0 auto;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:999px;background:var(--surface2);border:1px solid var(--line);color:var(--muted)}
+  .checklist li.done .st{background:var(--ok-bg);color:var(--ok);border-color:var(--ok)}
+  .checklist li.open .st{background:var(--brass-bg);color:var(--brass);border-color:var(--brass)}
+
+  .questions{counter-reset:q;list-style:none;padding:0;margin:12px 0}
+  .questions li{counter-increment:q;display:flex;gap:14px;padding:13px 0;border-bottom:1px solid var(--line)}
+  .questions li:last-child{border-bottom:none}
+  .questions li::before{content:counter(q);flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:var(--navy);color:#fff;font-family:Georgia,serif;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:16px}
+  .questions p{margin:2px 0}
+
+  .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+  .btn{appearance:none;border:1px solid var(--navy);background:var(--navy);color:#fff;border-radius:8px;padding:12px 18px;font-size:15px;font-weight:700;cursor:pointer;min-height:48px}
+  .btn.secondary{background:transparent;color:var(--navy)}
+  @media (prefers-color-scheme: dark){ .btn.secondary{color:#cfe0f7;border-color:#5b7db3} }
+  .btn:active{transform:translateY(1px)}
+  #copyStatus{font-size:14px;color:var(--muted);align-self:center;min-height:20px}
+
+  .record-table{width:100%;border-collapse:collapse;margin-top:12px;font-size:15px}
+  .record-table th,.record-table td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+  .record-table th{font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  @media(max-width:560px){
+    .record-table thead{display:none}
+    .record-table tr{display:block;padding:8px 0;border-bottom:1px solid var(--line)}
+    .record-table td{display:block;border:none;padding:3px 8px}
+    .record-table td:first-child{font-weight:700}
+  }
+  footer{margin-top:28px;color:var(--muted);font-size:13.5px;text-align:center;padding:0 8px}
+  .divider{height:1px;background:var(--line);margin:18px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="docket">Demand for Independent Investigation · Account Security &amp; Privacy</p>
+    <h1>Account Investigation &amp; Accountability</h1>
+    <p class="sub">Allen Mack is asking for every Google account he created, and his entire Visible by Verizon account, to be fully and thoroughly investigated — not by Google, not by Verizon, but by independent professionals who handle security and privacy violations, with the people responsible made to answer for what happened, the way a Senate Judiciary Committee hearing on Capitol Hill makes the accused answer before a board of experts.</p>
+    <div class="meta">
+      <span>Account holder: Allen Mack</span>
+      <span>Carrier: Visible by Verizon</span>
+      <span>Device: moto g play (XT2413V)</span>
+      <span>Line: 352-363-3127</span>
+    </div>
+  </header>
+
+  <!-- THE DEMAND -->
+  <section class="card" aria-labelledby="demand-h">
+    <h2 id="demand-h">The demand, in plain terms</h2>
+    <p class="lede">These accounts were placed in the trust of third parties — Google and Visible by Verizon — on the promise that their security systems were built and enforced to keep hackers out and keep private data private. If that protection failed, the failure is not Allen's to absorb. Whoever orchestrated, designed, implemented, or willingly took part in a breach — in any capacity, to any degree that furthered it — should be identified, made to answer, and held <strong>100% accountable</strong> for it.</p>
+    <div class="callout">
+      <p><strong>What “independent” means here:</strong> investigators separate from Google's and Verizon's own businesses and platforms. Not the companies grading their own homework — outside security and privacy professionals, unbiased to either side, whose job is to find and determine the facts: who did what, in what role, and how far it went.</p>
+    </div>
+    <p>The harms Allen states this has caused are not abstract: distress and fear, loss of enjoyment of life and of trust, retaliation, and loss of private data — monetary, physical, digital, and spiritual. Those harms are why this is framed as accountability, not a customer-service ticket.</p>
+  </section>
+
+  <!-- SCOPE -->
+  <section class="card" aria-labelledby="scope-h">
+    <h2 id="scope-h">Accounts in scope — all of them</h2>
+    <p class="muted">The scope is not one login or one incident. It is <strong>every</strong> account Allen created, end to end.</p>
+    <div class="scope">
+      <article>
+        <span class="tag">Platform 1</span>
+        <h3>Google — every account</h3>
+        <p>Every Google account created by Allen Mack, including the addresses on record:</p>
+        <ul>
+          <li class="mono">a95674127@gmail.com</li>
+          <li class="mono">allenmack701@gmail.com</li>
+        </ul>
+        <p class="small muted">Plus any other account created by him that the investigation identifies — sign-ins, password and recovery changes, forwarding and filter rules, delegates, third-party access, active sessions, and connected services such as GitHub sign-in through his Google identity.</p>
+      </article>
+      <article>
+        <span class="tag">Platform 2</span>
+        <h3>Visible by Verizon — the entire account</h3>
+        <p>The full Visible account on line <span class="mono">352-363-3127</span>, on a moto g play (model XT2413V).</p>
+        <p class="small muted">The entire account history: SIM / eSIM changes, IMEI history, port requests, call-forwarding changes, credential resets, support tickets, fraud flags, and the carrier's own records of who touched the account and when.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- EVIDENCE -->
+  <section class="card" aria-labelledby="evidence-h">
+    <h2 id="evidence-h">What is already on the record</h2>
+    <p class="muted">From the read-only audit carried out on November 24, 2026, and Allen's signed affidavit of the same date. This is the starting evidence — not the conclusion. A full independent investigation goes further and deeper.</p>
+
+    <div class="flagbox">
+      <h3>The one sign-in that does not belong</h3>
+      <p><strong>October 8, 2026, 4:57 AM EDT</strong> — GitHub's 90-day security log showed 17 sign-ins: 16 from Florida, and <strong>one from a UK IP address, 87.81.231.42</strong> — a successful sign-in and a failed login, made through Allen's Google identity, with a Chrome / Linux user agent. Allen was in Florida. He did not make that sign-in.</p>
+      <p><strong>Google's password was also last changed on October 8.</strong> Whether the two are connected is unproven — and proving or disproving it is exactly the kind of question an independent investigation exists to answer.</p>
+    </div>
+
+    <ol class="timeline">
+      <li class="alert">
+        <span class="date">October 8, 2026 — 4:57 AM EDT</span>
+        <p>Unattributed successful + failed login from UK IP <span class="mono">87.81.231.42</span> via Allen's Google identity (Chrome / Linux). Google password last changed the same date.</p>
+      </li>
+      <li>
+        <span class="date">November 24, 2026 — Account audit</span>
+        <p>Google 28-day activity: clean — 3 events, his phone, Florida. 13 sessions found: 1 Linux (the audit browser itself), 7 Android, 5 Chromebook. No personal access tokens created, no SSH / GPG keys added, and every OAuth authorization was Florida and his own services.</p>
+      </li>
+      <li class="alert">
+        <span class="date">November 24, 2026 — Open security gaps found</span>
+        <p><strong>2-Step Verification is OFF</strong> on the Google account, and the saved Google password is <strong>stale</strong> (changed around October 8). Both gaps are documented so the investigation — and Allen — can close them on the record.</p>
+      </li>
+      <li>
+        <span class="date">November 24, 2026 — Visible audit request drafted</span>
+        <p>A formal account-security-records request to Visible was prepared: SIM / eSIM change history, IMEI history, port requests, call-forwarding history, credential resets, tickets, fraud flags, a statement on cloning, CPNI records, and a preservation demand — so the carrier's records are held, not rotated away.</p>
+      </li>
+      <li>
+        <span class="date">November 24, 2026 — Affidavit signed</span>
+        <p>Allen signed his sworn affidavit under Florida's §92.525 declaration, naming the October 8 UK sign-in as an exhibit. It is filed in his incident record and in the attorney packet.</p>
+      </li>
+    </ol>
+  </section>
+
+  <!-- INVESTIGATION SCOPE -->
+  <section class="card" aria-labelledby="invest-h">
+    <h2 id="invest-h">What a complete investigation must cover</h2>
+    <p class="muted">Nothing partial. Each item below is a line of inquiry the independent professionals are asked to run to ground, on both platforms.</p>
+
+    <h3>Google accounts</h3>
+    <ul class="checklist">
+      <li class="open"><span class="box" aria-hidden="true"></span><span>Complete sign-in history for every account — every IP, device, location, and timestamp, reconciled against where Allen actually was</span><span class="st">To investigate</span></li>
+      <li class="open"><span class="box" aria-hidden="true"></span><span>The October 8 UK sign-in: full attribution — who, from where, through what path, and what was accessed after it</span><span class="st">To investigate</span></li>
+      <li class="open"><span class="box" aria-hidden="true"></span><span>Every password change, recovery email / phone change, and security-setting change, with dates and originating sessions</span><span class="st">To investigate</span></li>
+      <li class="open"><span class="box" aria-hidden="true"></span><span>Mail forwarding rules, filters, delegates, and third-party app access that could read, copy, or redirect his data without him seeing it</span><span class="st">To investigate</span></li>
+      <li class="open"><span class="box" aria-hidden="true"></span><span>Every active and historical session and device, identified one by one as his or not his</span><span class="st">To investigate</span></li>
+      <li class="done"><span class="box" aria-hidden="true"></span><span>First-pass audit already done (Nov 24, 2026): GitHub log, Google activity, sessions, tokens, and keys reviewed — findings in the record above</span><span class="st">Done — first pass</span></li>
+    </ul>
+
+    <h3>Visible by Verizon account</h3>
+    <ul class="checklist">
+      <li class="open"><span class="box" aria-hidden="true"></span><span>SIM / eSIM change history — every swap, activation, and reissue on the line, with who authorized it</span><span class="st">Requested</span></li>
+      <li class="open"><span class="box" aria-hidden="true"></span><span>IMEI history — every device the line has been attached to, matched against his moto g play (XT2413V)</span><span class="st">Requested</span></li>
+      <li class="open"><span class="box" aria-hidden="true"></span><span>Port requests and call-forwarding history — any attempt to move his number or redirect his calls</span><span class="st">Requested</span></li>
+      <li class="open"><span class="box" aria-hidden="true"></span><span>Credential resets, support tickets, fraud flags, and internal notes on the account</span><span class="st">Requested</span></li>
+      <li class="open"><span class="box" aria-hidden="true"></span><span>A direct carrier statement on SIM cloning / duplication for this line, and full CPNI disclosure</span><span class="st">Requested</span></li>
+      <li class="open"><span class="box" aria-hidden="true"></span><span>Preservation: all of the above records held intact pending the investigation — nothing deleted, nothing rotated</span><span class="st">Demanded</span></li>
+    </ul>
+  </section>
+
+  <!-- COMMITTEE MODEL -->
+  <section class="card" aria-labelledby="committee-h">
+    <h2 id="committee-h">The accountability model: answer before the board</h2>
+    <p>Allen's model is the Senate Judiciary Committee hearing on Capitol Hill in Washington, D.C.: the accused are brought before a board of highly educated, trained experts — unbiased to either side — and made to answer. The board finds and determines the facts and the relevant evidence: who each person is, what role they held or performed, and how their actions furthered the wrongdoing. Then accountability follows the facts.</p>
+    <p>The questions that board should put, on the record:</p>
+    <ol class="questions">
+      <li><p><strong>Who accessed these accounts, and by what right?</strong> Every non-Allen access identified by name, organization, and authority — or admitted as unauthorized.</p></li>
+      <li><p><strong>What did the protections promise, and where exactly did they fail?</strong> The specific safeguard — sign-in security, SIM-swap controls, carrier verification — that a breach slipped past.</p></li>
+      <li><p><strong>Who knew, and when?</strong> What Google, Visible / Verizon, or any involved party detected, logged, or was told — and what they did with that knowledge.</p></li>
+      <li><p><strong>What was taken, copied, forwarded, or changed?</strong> The full extent of private data exposed or altered, account by account.</p></li>
+      <li><p><strong>What role did each participant play?</strong> Orchestrated it, designed it, implemented it, enabled it, or knowingly looked away — each person's part stated plainly.</p></li>
+      <li><p><strong>What is the remedy?</strong> What each guilty party is held accountable to do — and to pay, restore, and prevent — to justify and repair the harm.</p></li>
+    </ol>
+    <div class="okbox">
+      <p><strong>The standard cuts both ways, and that is the point:</strong> an unbiased board protects the innocent as firmly as it finds the guilty. Allen is asking for facts determined by evidence — and for the consequences to land wherever those facts lead, on any person, business, organization, or establishment involved.</p>
+    </div>
+  </section>
+
+  <!-- HARMS -->
+  <section class="card" aria-labelledby="harms-h">
+    <h2 id="harms-h">The harm, as Allen states it</h2>
+    <p>Trust was placed in these platforms because local, state, federal, and public protections are built and designed to stop exactly this: hackers penetrating accounts that hold a person's private life. When that trust is broken, Allen states the cost lands on him as:</p>
+    <ul>
+      <li><strong>Safety and peace of mind</strong> — living with the knowledge that his accounts and his phone line may not be his alone</li>
+      <li><strong>Distress and fear</strong> — and loss of enjoyment of life and of trust</li>
+      <li><strong>Retaliation</strong> — harm he believes is connected to the same people and events in his signed affidavit and attorney packet</li>
+      <li><strong>Loss of private data</strong> — monetary, physical, digital, and spiritual</li>
+    </ul>
+    <p class="small muted">These are Allen's statements of harm, recorded in his own case — in his affidavit, his incident record, and this demand — for the investigators and the board to weigh against the evidence they find.</p>
+  </section>
+
+  <!-- RECORD -->
+  <section class="card" aria-labelledby="record-h">
+    <h2 id="record-h">Documents already on file</h2>
+    <table class="record-table">
+      <thead><tr><th>Document</th><th>Date</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Signed sworn affidavit (§92.525 declaration), citing the Oct. 8 UK sign-in as an exhibit</td><td>Nov 24, 2026</td><td>Signed &amp; filed in the incident record and attorney packet</td></tr>
+        <tr><td>Visible by Verizon account-security-records / audit request — SIM/eSIM, IMEI, ports, forwarding, resets, tickets, fraud flags, cloning statement, CPNI, preservation demand</td><td>Nov 24, 2026</td><td>Drafted</td></tr>
+        <tr><td>Read-only account audit — GitHub 90-day security log, Google activity &amp; sessions review</td><td>Nov 24, 2026</td><td>Complete — first pass; findings above</td></tr>
+        <tr><td>Attorney packet (incident record, addenda, authorization agreement)</td><td>Rebuilt Nov 24, 2026</td><td>On file, held for Allen's attorneys at Gonzalez &amp; Goetz</td></tr>
+      </tbody>
+    </table>
+    <div class="divider"></div>
+    <h3>The path from here</h3>
+    <ol>
+      <li><strong>Preserve everything.</strong> Google and Visible / Verizon records held intact — the preservation demand is already written.</li>
+      <li><strong>Independent professionals engaged</strong> — outside both companies — to run every line of inquiry in the checklist above.</li>
+      <li><strong>Findings on the record:</strong> who accessed what, what failed, and each participant's role, determined from evidence.</li>
+      <li><strong>Accountability:</strong> the responsible parties answer for it — before the board, and under the local, state, and federal protections that were supposed to prevent it.</li>
+    </ol>
+    <div class="actions">
+      <button class="btn" id="copyBtn" type="button">Copy the demand summary</button>
+      <button class="btn secondary" id="downloadBtn" type="button">Download this brief (.txt)</button>
+      <span id="copyStatus" role="status" aria-live="polite"></span>
+    </div>
+  </section>
+
+  <footer>
+    <p>Prepared for Allen Mack as his own statement of demand. Facts in the evidence section are drawn from the November 24, 2026 audit and his signed affidavit; allegations are recorded as his account, for independent investigators to prove or disprove.</p>
+  </footer>
+</div>
+
+<script>
+(function(){
+  var summary = [
+    "ACCOUNT INVESTIGATION & ACCOUNTABILITY — DEMAND SUMMARY",
+    "Account holder: Allen Mack",
+    "Scope: EVERY Google account created by Allen Mack (including a95674127@gmail.com and allenmack701@gmail.com), and his ENTIRE Visible by Verizon account (line 352-363-3127, moto g play XT2413V).",
+    "",
+    "DEMAND: A full, thorough investigation by independent professionals — separate from Google and from Verizon — who handle security and privacy violations, unbiased to either side, to find and determine the facts: who accessed these accounts, what protections failed, what data was taken or changed, and what role each person, business, or organization played.",
+    "",
+    "KEY EVIDENCE ALREADY ON RECORD (audit, Nov 24, 2026):",
+    "- Oct 8, 2026, 4:57 AM EDT: successful + failed login from UK IP 87.81.231.42 via Allen's Google identity (Chrome/Linux), found in GitHub's 90-day log (17 sign-ins; 16 Florida, 1 UK). Allen was in Florida.",
+    "- Google password last changed Oct 8, 2026 — connection to the UK sign-in unproven, to be determined.",
+    "- 2-Step Verification OFF; saved Google password stale (changed ~Oct 8).",
+    "- No PATs, no SSH/GPG keys, all OAuth authorizations Florida and his own services.",
+    "",
+    "VISIBLE RECORDS REQUESTED: SIM/eSIM change history, IMEI history, port requests, call-forwarding history, credential resets, tickets, fraud flags, cloning statement, CPNI, and preservation of all records.",
+    "",
+    "ACCOUNTABILITY MODEL: Those responsible answer before a board of independent experts, as in a Senate Judiciary Committee hearing — facts determined from evidence, each participant's role stated, and the guilty held 100% accountable for the breach and its harms: distress, fear, loss of enjoyment of life and trust, retaliation, and loss of private data (monetary, physical, digital, spiritual).",
+    "",
+    "ON FILE: Signed affidavit (Nov 24, 2026, Fla. §92.525); Visible audit request (drafted Nov 24, 2026); attorney packet held for Gonzalez & Goetz."
+  ].join("\n");
+
+  var status = document.getElementById('copyStatus');
+
+  document.getElementById('copyBtn').addEventListener('click', function(){
+    function done(){ status.textContent = "Copied — ready to paste anywhere."; }
+    function fallback(){
+      var ta = document.createElement('textarea');
+      ta.value = summary; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); done(); }
+      catch(e){ status.textContent = "Copy didn't work here — use Download instead."; }
+      document.body.removeChild(ta);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(summary).then(done, fallback);
+    } else { fallback(); }
+  });
+
+  document.getElementById('downloadBtn').addEventListener('click', function(){
+    var blob = new Blob([summary], {type:'text/plain;charset=utf-8'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'account-investigation-demand-summary.txt';
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+    status.textContent = "Download started.";
+  });
+})();
+</script>
+</body>
+</html>
