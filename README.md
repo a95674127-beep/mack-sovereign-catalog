@@ -1,5 +1,7 @@
 # MACK Sovereign Product Catalog (Gen 2)
 
+[![Package Verification & Doc Consistency](https://github.com/a95674127-beep/mack-sovereign-catalog/actions/workflows/verify.yml/badge.svg)](https://github.com/a95674127-beep/mack-sovereign-catalog/actions/workflows/verify.yml)
+
 **Publisher:** Allen Mack / AI Infinity Force One Sovereign Authority  
 **Author / Ingress Authority:** Allen Mack (Williston, Florida | `a95674127@gmail.com`)  
 **Standards:** NIST SP 800-207 Zero Trust Architecture | STRIDE Threat Model (Gen 2) | Non-ITAR / Unclassified  
